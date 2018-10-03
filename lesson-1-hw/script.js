@@ -8,6 +8,7 @@ function CoffeeMachine(power) {
 	let waterHeatCapacity = 4200;
 	let maxTemp = 90;
 	let coffeeAmount = 0;
+	let timer;
 
 // определение времени приготовления кофе
 	const getBoilTime = function () {
@@ -55,13 +56,24 @@ function CoffeeMachine(power) {
 		}
 		const boilTime = getBoilTime ();
 		console.info(`Время приготовления вашего кофе в количестве ${coffeeAmount} грамм составит ${boilTime} мс `);
-		setTimeout(function () {
+		timer = setTimeout(function () {
 			console.log('Ваш кофе готов!')
 		}, boilTime);
 	};
+// метод остановки приготовления кофе
+	this.stop = function () {
+		clearTimeout(timer);
+		console.log('Приготовление кофе остановлено!');
+	}
 }
 
 const vitek = new CoffeeMachine(2000);
 vitek.fill(50);
 vitek.fillCoffee(25);
 vitek.launch();
+setTimeout(vitek.stop(), 3000);
+
+const polaris = new CoffeeMachine(4000);
+polaris.fill(80);
+polaris.fillCoffee(50);
+polaris.launch();
