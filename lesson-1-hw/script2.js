@@ -8,6 +8,12 @@ Container.prototype.render = function () {
     return this.htmlCode;
 };
 
+// функция удаления DOM-узла
+Container.prototype.remove = function () {
+    var menuElem = document.getElementById(this.id);
+    menuElem.parentNode.removeChild(menuElem);
+};
+
 function Menu(my_id, my_class, my_items) {
     Container.call(this);
     this.id = my_id;
