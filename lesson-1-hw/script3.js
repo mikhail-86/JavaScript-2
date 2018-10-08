@@ -116,15 +116,17 @@ let Ham1 = new Hamburger('small', 'cheese');
 
 Ham1.addStuffing('potato');
 Ham1.addStuffing('salad');
-console.log(Ham1.stuffing);
+//console.log(Ham1.stuffing);
 Ham1.removeStuffing('salad');
-console.log(Ham1.stuffing);
+//console.log(Ham1.stuffing);
 Ham1.addTopping('mayo');
-console.log(Ham1.topping);
+//console.log(Ham1.topping);
 Ham1.removeTopping('mayo');
-console.log(Ham1.topping);
+//console.log(Ham1.topping);
 Ham1.addTopping('flavouring');
-console.log(Ham1.topping);
+Ham1.removeTopping('flavouring');
+Ham1.addTopping('mayo');
+//console.log(Ham1.topping);
 console.log('Цена гамбургера составит: ' + Ham1.calculatePrice() + ' рублей.');
 console.log('Количество калорий составит: ' + Ham1.calculateCalories() + ' калорий.');
 
