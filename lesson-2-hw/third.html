@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Homework 2</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+<div class="container mt-4">
+    <form id="messageForm">
+        <div class="form-group">
+            <label for="message">Введите сообщение</label>
+            <input type="text" class="form-control" id="message" placeholder="Введите сообщение">
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+    <div class="card mt-4">
+        <div class="card-body">
+            <p class="card-text"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+const BASE_URL = 'http://89.108.65.123';
+const textArea = document.querySelector('.card-text');
+const form = document.querySelector('#messageForm');
+const messageInput = document.querySelector('#message');
+
+const getMessage = () => {
+  fetch(`${BASE_URL}/getMessage`).then((result) => {
+    return result.text();
+  }).then((text) => {
+    textArea.innerHTML = text
+  }).catch((error) => {
+    console.error(error);
+  })
+}
+
+const sendMessage = (message) => {
+  fetch(`${BASE_URL}/sendMessage`, {
+    method: 'POST',
+    body: message
+  }).then(() => {
+    getMessage();
+  }).catch((error) => {
+    console.error(error);
+  })
+}
+
+getMessage()
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const message = messageInput.value;
+  sendMessage(message);
+})
+</script>
+</body>
+</html>
