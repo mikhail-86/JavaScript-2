@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    
+</head>
+<body>
+    <textarea type="text" id="inputField" rows="20" cols="100"></textarea><br>
+    <textarea type="text" id="resultField" rows="20" cols="100"></textarea>
+<script>
+const input = document.querySelector('#inputField');
+const result = document.querySelector('#resultField');
+var 
+    reg = /\'/gi, // замена всех ' ковычек на "
+    reg2 = /(?<!\w)\'(?=\w+)|(?<=\w+)\'(?=\s+)/gi;// замена всех ' ковычек на ", кроме апострофов
+    
+input.addEventListener('input', () => {
+    result.innerHTML = input.value.replace(reg2, '"') 
+});
+    
+
+</script>
+</body>
+</html>
