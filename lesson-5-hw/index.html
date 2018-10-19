@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+        li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <form id="add-product-form">
+        <div class="form-group">
+            <label for="product-list">Выберите продукт</label>
+            <select class="form-control" name="product" id="product-list">
+
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+    </form>
+    <h4 id="inform" class="mt-4"></h4>
+    <ul class="list-group products-list mt-2">
+    </ul>
+</div>
+<div class="container mt-4">
+    <form id="add-comments-form">
+        <div class="form-group">
+            <label for="comments">Введите текст комментария</label>
+            <input type="text" class="form-control" name="comments" id="comment">
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить комментарий</button>
+        <h4 id="comments-inform"></h4>
+        <ul class="list-group comments-list mt-2">
+            
+        </ul>
+    </form>
+    
+</div>
+    
+<script src="./http.js"></script>
+<script>
+// глобальный объект для хранения данных о текущей (локальная версия)
+const cart = {
+  userID: undefined, // id пользователя
+  cart: [] // сама корзина
+}
+// глобальный объект для хранения данных о текущих комментариях (локальная версия)
+var comments = null;
+const products = [
+  {
+    id: -1,
+    name: 'Не выбрано',
+    price: 0
+  },
+  {
+    id: 0,
+    name: 'iPhone X',
+    price: 75000
+  },
+  {
+    id: 1,
+    name: 'iPad',
+    price: 35000
+  },
+  {
+    id: 2,
+    name: 'Macbook Air',
+    price: 60000
+  },
+  {
+    id: 3,
+    name: 'Macbook Pro',
+    price: 135000
+  },
+] // создаем массив списка товаров
+const $http = new Http('http://89.108.65.123:8080') // создаем инстанс HTTP-клиента
+
+const removeProduct = async (userId, productId) => { // асинхронный метод удаления продукта из корзины
+  const queryString = `user_id=${userId}&product_id=${productId}` // из входных данных формируем строку для запроса
+  const cartData = await $http.delete('/shop', queryString) // вызываем метод DELETE на /shop и ждем результат
+  cart.cart = cartData.cart // ответ от сервера записать в локальное отображение данных
+  renderInformation() // перерендер списка
+}
+const renderInformation = () => { // функция для рендера списка и ID пользователя
+  const list = document.querySelector('.products-list') // находим контейнер для списка
+  const inform = document.querySelector('#inform') // находим контейнер для доп. информации
+  list.innerHTML = '' // очищаем контейнер для списка
+  inform.innerHTML = `ПОЛЬЗОВАТЕЛЬ: ${cart.userID} - ${cart.cart.length}` // перезаписываем информацию на ID пользователя и колличество элементов в корзине
+  cart.cart.forEach((item) => { // проходим по всем элементам корзины
+    list.innerHTML +=
+      `<li class="list-group-item" data-id="${item.product_id}">${item.product}</li>` // для каждого элемента создаем тег li в контейнере списка
+  })
+  const listItem = [...list.querySelectorAll('li')] // собираем все созданные элементы в массив
+  
+  listItem.forEach((li) => { // проходим по списку li
+    const productID = li.getAttribute('data-id') // у каждого элемента собираем аттрибут data-id
+    li.addEventListener('click', () => { // на каждом li создаем событие click
+      removeProduct(cart.userID, productID) // по клику вызываем метод remove и передаем в него userID и id продукта взятый из аттрибута
+    })
+      
+  })
+}
+const fillProductsList = (selector, productList) => { // метод для формирования селекта из массива продуктов
+  const select = document.querySelector(selector) // забираем селект из DOM
+  select.innerHTML = '' // Очищаем все в select'e
+  productList.forEach((product) => { // проходим по каждому элементу products
+    select.innerHTML += `<option
+        value="${product.id}">${product.name}</option>` // для каждого элемента создаем option в нашем select
+  })
+}
+const createCart = async () => { // асинхронный метод создания корзины
+  try { // обработчик ошибок
+    const userData = await $http.get('/shop') // отправляем GET запрос на /shop, ждем результат
+    cart.userID = userData.user_id // вытаскиваем ID пользователя из результата запроса и сохраняем в глобальной перменной
+    cart.cart = userData.cart // тоже самое с самой корзиной
+  } catch (e) {
+    console.error(e) // в случае ошибки вывести сообщение
+  }
+}
+const addProductToCart = (product) => { // метод для добавления продукта в козину, пушит в корзину и вызывает перерендер
+  cart.cart.push(product)
+  renderInformation()
+}
+const addProduct = async (e) => { // мето для добавления продукта на сервере в корзину
+  e.preventDefault()
+  const select = e.target.querySelector('select') // получаем селект из форму
+  const idValue = select.value // забираем его значение
+  if (idValue == -1) return // выходим из функции если id равен -1
+  const product = products.find(product => product.id == idValue) // ищем продукт в массиве по ID
+  if (!product) return // выходим из функции если продкут не найден
+  const queryString =
+    `user_id=${cart.userID}&product=${product.name}&price=${product.price}` // создаем строку для запроса
+  const request = await $http.post('/shop', queryString) // выполняем POST запрос на добавление товара и ждем результат
+  addProductToCart(request) // вызываем метод для добавления товара в локальное отображение, передав туда результат запроса
+}
+const addListeners = () => { // навешиваем события
+  const productForm = document.querySelector('#add-product-form') // забираем форму из DOM в перменную
+  productForm.addEventListener('submit', addProduct) // слушаем событие submit и вызываем при срабатывании addProduct
+}
+
+//Модуль комментариев
+// 0. Вывод всех комментариев
+// 1. Добавление комментария
+// 2. Лайк комментария
+// 3. Удаление комментария
+const getComments = async () => { // Получение всех комментариев
+try {
+        const commentsData = await $http.get('/comments');
+        comments = commentsData;
+        console.log(comments);
+    } catch (err) {
+    console.error(err);
+    }
+    
+} 
+const renderComments = () => {
+    const list = document.querySelector('.comments-list');
+    list.innerHTML = '';
+    //console.log(comments);
+    comments.forEach((item) => {
+        list.innerHTML += `<li class="list-group-item" data-id="${item.comment_id}">${item.text} <br> Лайков: ${item.likes}</li>`; 
+    }) 
+    const listItem = [...list.querySelectorAll('li')] // собираем все созданные элементы в массив
+  
+  listItem.forEach((li) => { // проходим по списку li
+    const commentID = li.getAttribute('data-id') // у каждого элемента собираем аттрибут data-id
+    li.addEventListener('dblclick', () => { // на каждом li создаем событие dblclick
+      removeComment(commentID) // по клику вызываем метод remove и передаем в него commentID
+    })
+    li.addEventListener('click', () => { // на каждом li создаем событие click
+      likeComment(commentID) // по клику вызываем метод like и увеличиваем количство лайков
+    })
+      
+  })
+}
+const addCommentToComments = (comment) => {
+    comments.push(comment);
+    renderComments();
+}
+
+const addComment = async (e) => { // Добавление комментария
+    e.preventDefault();
+    const comment = document.querySelector('#comment');
+    const commentText = comment.value;
+    console.log(commentText);
+    if (commentText =='') return
+    const queryString =
+    `text=${commentText}`; // создаем строку для запроса
+    const request = await $http.post('/comments', queryString); // выполняем POST запрос на добавление комментария
+    addCommentToComments(request); // вызываем метод для добавления комментария в локальное отображение, передав туда результат запроса
+}
+const addCommentListener = () => { // навешиваем события
+  const commentForm = document.querySelector('#add-comments-form') // забираем форму из DOM в перменную
+  commentForm.addEventListener('submit', addComment) // слушаем событие submit и вызываем при срабатывании addComment
+}
+
+const removeComment = async (commentID) => { //Удаление комментария по двойному нажатию мыши
+  const queryString = `comment_id=${commentID}` // из входных данных формируем строку для запроса
+  const commentsData = await $http.delete('/comments', queryString) // вызываем метод DELETE на /comments и ждем результат
+  for (var i = 0; i < comments.length; i++) { // ответ от сервера удалить из локальных данных
+      if (comments[i].comment_id == commentsData.comment_id) {
+          comments.splice( i, 1);
+      }
+  }
+  renderComments(); // перерендер списка
+}
+
+const likeComment = async (commentID) => { // Лайк комментария по нажатию мыши
+    const queryString = `comment_id=${commentID}`;
+    const commentsData = await $http.patch('/comments', queryString); // вызываем метод PATCH на comments и ждем результат
+    for (var i = 0; i < comments.length; i++) { // найти ответ от сервера в списке локальных данных и увеличить количество лайков
+      if (comments[i].comment_id == commentsData.comment_id) {
+          comments[i].likes = commentsData.likes;
+      }
+  }
+  renderComments() // перерендер списка
+}
+
+const init = async () => { // асинхронный метод для инциализации
+  addListeners() // навешиваем события
+  fillProductsList('#product-list', products) // формируем  список продкутов по массиву
+  await createCart() // инциализируем корзину и ждем выполнения это функции
+  renderInformation() // выполняем ренедр после инициализации
+  addCommentListener();
+  await getComments();
+  renderComments();
+}
+
+document.addEventListener('DOMContentLoaded', init) // запускаем функцию init после загрузки всего DOM дерева
+</script>
+</body>
+</html>
