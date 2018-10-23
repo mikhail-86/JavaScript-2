@@ -1,0 +1,163 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css" />
+<style>
+    .cartItem {
+        border: 1px solid black;
+        margin: 10px;
+        margin-top: 0px;
+        padding: 10px;
+        width: 100px;
+    }
+    .cart {
+        padding: 10px;
+        width: 200px;
+    }
+    .hidden {
+        display: none;
+    }
+    span {
+        display: inline-block;
+        text-align: center;
+    }
+</style>
+<title>Cart</title>
+</head>
+<body>
+<div class="catalog">
+</div>
+    
+<div class='cart-form'> 
+    <h3>Корзина</h3>
+    <img class="cart" src="img/cart.jpg">
+</div>
+<div class="price-show"> 
+    <p>Total price: <span id="fullprice">0</span> руб.</p>
+    <p>Total amount: <span id="totalAmount">0</span></p>
+</div>
+<script>
+let catalog = {
+	items: [{
+		id: 0,
+		name: 'cheese',
+		price: 245,
+		src: 'img/cheese.png'
+	}, 
+    {
+		id: 1,
+		name: 'tomato',
+		price: 153,
+		src: 'img/tomato.png'
+	}, 
+    {
+		id: 2,
+		name: 'potato',
+		price: 28,
+		src: 'img/potato.png'
+	}, 
+    {
+		id: 3,
+		name: 'cucumber',
+		price: 50,
+		src: 'img/cucumber.png'
+	}
+],
+    render: function() {
+    const cat = document.querySelector('.catalog');
+    let span = document.createElement('span')
+    let img = document.createElement('img');
+    img.src = 'img/arrow_left.png';
+    img.id = 'prev';
+    cat.appendChild(span);
+    span.appendChild(img);
+    for ( let i = 0; i < this.items.length; i++) {
+		let product = this.items[i];
+		span = document.createElement('span');
+		let name = product.name;
+		let price = product.price;
+        img = document.createElement('img');
+        img.src = product.src;
+        img.setAttribute('price', price);
+        $(img).addClass('cartItem');
+		span.innerHTML = '<p>' + name + '<br>' + price + ' руб.</p>';
+		span.id = name;
+        if (i > 2) {
+            span.setAttribute('visible', false);
+        }
+		cat.appendChild(span);
+        span.appendChild(img);
+        }
+    span = document.createElement('span')
+    img = document.createElement('img');
+    img.src = 'img/arrow_right.png';
+    img.id = 'next';
+    cat.appendChild(span);
+    span.appendChild(img);
+    document.addEventListener('click', this.onClick.bind(this));
+    },
+    onClick: function(e) {
+        if (e.target.id == 'prev'){
+            console.log('Здесь должна быть прокрутка влево');
+        } 
+        if (e.target.id == 'next'){
+            console.log('Здесь должна быть прокрутка вправо')
+        }
+    }
+}
+var cart = {
+	items: [],
+	totalPrice: 0,
+	totalAmount: 0,
+	addProduct: function(product) {
+		//console.log(product);
+		this.items.push(product);
+		this.calculate();
+		this.render();
+	},
+	calculate: function() {
+		this.totalPrice = 0;
+		this.totalAmount = 0;
+		for ( let i = 0; i < this.items.length; i++){
+			this.totalPrice += parseInt(this.items[i].attr('price'));
+			++this.totalAmount;
+            //console.log(this.items[i].attr('price'))
+		}
+	},
+	render: function() {
+		var element = document.getElementById('fullprice');
+		element.innerHTML = this.totalPrice;
+        element = document.getElementById('totalAmount');
+		element.innerHTML = this.totalAmount;
+	}
+}
+
+$(document).ready(function() {
+    catalog.render();
+    $('.cartItem').draggable({
+    revert: false,
+    helper: "clone"
+});
+    $('.cart').droppable({
+        over: function () {
+            //console.log("Элемент готов к добавлению в корзину")
+            $('.cart').css('opacity', '0.5')
+        },
+        out: function () {
+            $('.cart').css('opacity', '1')
+        },
+        drop: function () {
+            $('.cart').css('opacity', '1')
+            //console.log("Элемент добавлен в корзину")
+            cart.addProduct($('.ui-draggable-dragging'))
+        }
+    });
+})
+
+</script>
+</body>
+</html>

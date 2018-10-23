@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <!--<meta http-equiv="X-UA-Compatible" content="ie=edge">-->
+    <title>Homework 4</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css">
+    <style>
+        .list-item {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Список возможных городов</h2>
+    <ul class="list-group cities-list mb-2">
+    </ul>    
+</div>   
+    
+<div class="container">
+<form class="user-form">
+  <div class="form-group">
+    <label for="InputCity">Город</label>
+    <input type="text" class="form-control" id="InputCity" placeholder="Введите Ваш город">
+  </div>
+  <div class="form-group">
+    <label for="InputBirthday">Дата рождения</label>
+    <input type="text" class="form-control" id="InputBirthday" placeholder="Введите Вашу дату рождения"/>
+  </div>
+  <button type="submit" class="btn btn-primary">Отправить</button>
+  <div id="dialog" title="Error list" style="display: none">
+      <p>Ошибка ввода даты</p>
+  </div>
+</form>
+</div>
+    
+
+<script>
+    
+$('#InputBirthday').datepicker({
+    dateFormat: 'dd/mm/yy',
+    onSelect: function (date, datepicker) {
+        //console.log(date);
+        var year = date.slice(6);
+        var month = date.slice(3,5);
+        //console.log(year);
+        //console.log(month);
+        if (year > '2017' && month > '09') {
+            $('#InputBirthday').toggle('bounce',{times: 4}, 'slow')
+            $('#InputBirthday').css('borderColor', 'red')
+            $('#InputBirthday').toggle('bounce',{times: 4}, 'slow')
+            $('#dialog').dialog()
+            $('#dialog').html(`Дата ${date} введена неверно! Попробуйте ввести новое значение.`)
+        }
+    }
+});
+    
+$('.btn').on('click', (e) => {
+    e.preventDefault();
+})
+
+   
+</script>
+</body>
+</html>
